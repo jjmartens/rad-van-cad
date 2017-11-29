@@ -1,0 +1,148 @@
+<!--
+    Winhweel.js basic code wheel example by Douglas McKechie @ www.dougtesting.net
+    See website for tutorials and other documentation.
+    
+    The MIT License (MIT)
+
+    Copyright (c) 2016 Douglas McKechie
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+-->
+<html>
+    <head>
+        <title>Rad van CAD</title>
+        <link rel="stylesheet" href="main.css" type="text/css" />
+        <script type="text/javascript" src="Winwheel.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenMax.min.js"></script>
+    </head>
+    <body>
+        <div align="center">
+            <table cellpadding="0" cellspacing="0" border="0">
+            <tr>
+                <td>
+                    <div>
+                            <br />
+                            <img id="spin_button" src="spin_off.png" alt="Spin" onClick="startSpin();" />
+                            <br /><br />
+                    </div>
+                </td>
+                <td width="438" height="582" class="the_wheel" align="center" valign="center">
+                    <canvas id="canvas" width="434" height="434">
+                        <p style="{color: white}" align="center">Sorry, your browser doesn't support canvas. Please try another.</p>
+                    </canvas>
+                </td>
+            </tr>
+        </table>
+        <script>
+            // Create new wheel object specifying the parameters at creation time.
+            var theWheel = new Winwheel({
+                'numSegments'  : 11,     // Specify number of segments.
+                'outerRadius'  : 212,   // Set outer radius so wheel fits inside the background.
+                'innerRadius'   : 50,  // Set inner radius to make wheel hollow.
+                'textAlignment' : 'middle',
+                'textMargin': 10,
+                'textFillStyle': "white", 
+                'textFontSize' : 15,    // Set font size as desired.
+                'segments'     :        // Define segments including colour and text.
+                [
+                   {'fillStyle' : '#E62272', 'text' : 'Krat van CAD!', size: 3},
+                   {'fillStyle' : '#571EB0', 'text' : 'Verrassingsprijs'},
+                   {'fillStyle' : '#43DA13', 'text' : 'Ad van CAD', size: 3 },
+                   {'fillStyle' : '#F51530', 'text' : 'Verrassingsshotje'},
+                   {'fillStyle' : '#B7F215', 'text' : 'Verzoeknummer'},
+                   {'fillStyle' : '#F51530', 'text' : 'Gratis drankje'},
+                   {'fillStyle' : '#571EB0', 'text' : 'Rondje voor CAD', size:5},
+                   {'fillStyle' : '#43DA13', 'text' : 'Cola light'},
+                   {'fillStyle' : '#B7F215', 'text' : 'Verrassingsprijs'},
+                   {'fillStyle' : '#F51530', 'text' : 'Knuffel van Kirsten'},
+                   {'fillStyle' : '#43DA13', 'text' : 'Cola light'},
+                ],
+                'animation' :           // Specify the animation to use.
+                {
+                    'type'     : 'spinToStop',
+                    'duration' : 5,     // Duration in seconds.
+                    'spins'    : 8,     // Number of complete spins.
+                    'callbackFinished' : 'alertPrize()',
+                    'stopAngle': null
+                }
+            });
+            
+            // Vars used by the code in this page to do power controls.
+            var wheelPower    = 2;
+            var wheelSpinning = false;
+            
+            // -------------------------------------------------------
+            // Click handler for spin button.
+            // -------------------------------------------------------
+            function startSpin()
+            {
+                // Ensure that spinning can't be clicked again while already running.
+                if (wheelSpinning == false)
+                {
+                    resetWheel();
+                    // Based on the power level selected adjust the number of spins for the wheel, the more times is has
+                    // to rotate with the duration of the animation the quicker the wheel spins.
+                    if (wheelPower == 2)
+                    {
+                        theWheel.animation.spins += 8.5;
+                    }
+                    
+                    // Disable the spin button so can't click again while wheel is spinning.
+                    document.getElementById('spin_button').src       = "spin_off.png";
+                    document.getElementById('spin_button').className = "";
+                    
+                    // Begin the spin animation by calling startAnimation on the wheel object.
+                    theWheel.startAnimation();
+                    
+                    // Set to true so that power can't be changed and spin button re-enabled during
+                    // the current animation. The user will have to reset before spinning again.
+                    wheelSpinning = true;
+                }
+            }
+            
+            // -------------------------------------------------------
+            // Function for reset button.
+            // -------------------------------------------------------
+            function resetWheel()
+            {
+                theWheel.stopAnimation(false);  // Stop the animation, false as param so does not call callback function.
+                theWheel.rotationAngle = 0;     // Re-set the wheel angle to 0 degrees.
+                theWheel.draw();                // Call draw to render changes to the wheel.
+                               
+                wheelSpinning = false;          // Reset to false to power buttons and spin can be clicked again.
+            }
+            
+            // -------------------------------------------------------
+            // Called when the spin animation has finished by the callback feature of the wheel because I specified callback in the parameters.
+            // -------------------------------------------------------
+            function alertPrize()
+            {
+                // Get the segment indicated by the pointer on the wheel background which is at 0 degrees.
+                var winningSegment = theWheel.getIndicatedSegment();
+                theWheel.stopAnimation(false);  // Stop the animation, false as param so does not call callback function.
+                wheelSpinning = false;
+                prijs.innerHTML = winningSegment.text;
+            }
+
+            document.addEventListener("keydown", startSpin);
+        </script>
+
+        <h2 style="margin-top:-25px;font-family:'Comic Sans MS';color:#E62272">Prijs: <span id="prijs"></span></h2>
+    </body>
+</html>
